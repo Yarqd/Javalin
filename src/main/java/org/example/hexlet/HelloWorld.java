@@ -4,6 +4,7 @@ import io.javalin.Javalin;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.rendering.template.JavalinJte;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.example.hexlet.model.Course;
 import org.example.hexlet.model.User;
 import org.example.hexlet.dto.courses.CoursePage;
@@ -86,6 +87,19 @@ public class HelloWorld {
             ctx.render("courses/show.jte", model("page", page));
         });
 
+//        app.get("/userss/{id}", ctx -> { //Безопасность
+//            // http://localhost:7070/userss/%3Cscript%3Ealert('attack!')%3B%3C%2Fscript%3E
+//            var id = ctx.pathParam("id");
+//            var escapedId = StringEscapeUtils.escapeHtml4(id); // Экранирование
+//            ctx.contentType("html");
+//            ctx.result("<h1>" + escapedId + "</h1>"); //Вместо id используем escapedId
+//        });
+
+        app.get("/userstemplate/{id}", ctx -> {
+            var id = ctx.pathParam("id");
+            ctx.contentType("text/html");
+            ctx.render("user_template.jte", model("id", id));
+        });
         app.start(7070);
     }
 
