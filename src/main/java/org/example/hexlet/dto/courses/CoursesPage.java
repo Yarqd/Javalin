@@ -7,11 +7,13 @@ import java.util.List;
 public class CoursesPage {
     private List<Course> courses;
     private String header;
+    private String term;
 
     // Конструктор
     public CoursesPage(List<Course> courses, String header) {
         this.courses = courses;
         this.header = header;
+        this.term = term;
     }
 
     // Геттеры
@@ -21,5 +23,9 @@ public class CoursesPage {
 
     public String getHeader() {
         return header;
+    }
+
+    public String getTerm() {
+        return term;
     }
 }

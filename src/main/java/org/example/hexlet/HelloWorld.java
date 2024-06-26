@@ -3,7 +3,6 @@ package org.example.hexlet;
 import io.javalin.Javalin;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.rendering.template.JavalinJte;
-
 import org.apache.commons.text.StringEscapeUtils;
 import org.example.hexlet.model.Course;
 import org.example.hexlet.model.User;
@@ -26,7 +25,7 @@ public class HelloWorld {
 
         app.get("/", ctx -> ctx.render("index.jte"));
 
-        // **BEGIN**: Добавление обработчиков для пользователей и использование макетов
+        // Добавление обработчиков для пользователей и использование макетов
         List<User> users = createUsers();
         app.get("/users", ctx -> {
             var page = new UsersPage(users);
@@ -47,7 +46,6 @@ public class HelloWorld {
             ctx.status(404);
             ctx.result(e.getMessage());
         });
-        // **END**
 
         app.post("/users", ctx -> ctx.result("POST /users"));
 
@@ -72,8 +70,14 @@ public class HelloWorld {
 
         // Обработчик для отображения списка курсов
         app.get("/courses", ctx -> {
-            var header = "Доступные курсы";
-            var page = new CoursesPage(courses, header);
+            var term = ctx.queryParam("term");
+            List<Course> filteredCourses;
+            if (term != null && !term.isEmpty()) {
+                filteredCourses = filterCoursesByTerm(term); // Фильтруем курсы по term
+            } else {
+                filteredCourses = courses; // Показываем все курсы
+            }
+            var page = new CoursesPage(filteredCourses, term);
             ctx.render("courses/index.jte", model("page", page));
         });
 
@@ -87,19 +91,19 @@ public class HelloWorld {
             ctx.render("courses/show.jte", model("page", page));
         });
 
-//        app.get("/userss/{id}", ctx -> { //Безопасность
-//            // http://localhost:7070/userss/%3Cscript%3Ealert('attack!')%3B%3C%2Fscript%3E
-//            var id = ctx.pathParam("id");
-//            var escapedId = StringEscapeUtils.escapeHtml4(id); // Экранирование
-//            ctx.contentType("html");
-//            ctx.result("<h1>" + escapedId + "</h1>"); //Вместо id используем escapedId
-//        });
+        app.get("/userss/{id}", ctx -> { // Безопасность
+            var id = ctx.pathParam("id");
+            var escapedId = StringEscapeUtils.escapeHtml4(id); // Экранирование
+            ctx.contentType("html");
+            ctx.result("<h1>" + escapedId + "</h1>"); // Вместо id используем escapedId
+        });
 
         app.get("/userstemplate/{id}", ctx -> {
             var id = ctx.pathParam("id");
             ctx.contentType("text/html");
             ctx.render("user_template.jte", model("id", id));
         });
+
         app.start(7070);
     }
 
@@ -124,7 +128,6 @@ public class HelloWorld {
         return courses;
     }
 
-    // **BEGIN**: Создаем список пользователей
     private static List<User> createUsers() {
         List<User> users = new ArrayList<>();
 
@@ -140,5 +143,15 @@ public class HelloWorld {
         users.add(user5);
         return users;
     }
-    // **END**
+
+    private static List<Course> filterCoursesByTerm(String term) {
+        List<Course> allCourses = createCourses();
+        List<Course> filteredCourses = new ArrayList<>();
+        for (Course course : allCourses) {
+            if (course.getName().contains(term) || course.getDescription().contains(term)) {
+                filteredCourses.add(course);
+            }
+        }
+        return filteredCourses;
+    }
 }
