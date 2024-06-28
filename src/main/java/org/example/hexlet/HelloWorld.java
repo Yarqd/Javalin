@@ -32,6 +32,10 @@ public class HelloWorld {
             ctx.render("users/index.jte", model("page", page));
         });
 
+        app.get("/users/build", ctx -> {
+            ctx.render("users/build.jte");
+        });
+
         app.get("/users/{id}", ctx -> {
             var id = Integer.parseInt(ctx.pathParam("id"));
             var user = users.stream()
@@ -47,7 +51,16 @@ public class HelloWorld {
             ctx.result(e.getMessage());
         });
 
-        app.post("/users", ctx -> ctx.result("POST /users"));
+        app.post("/users", ctx -> {
+                var name = ctx.formParam("name").trim();
+                var email = ctx.formParam("email").trim().toLowerCase();
+                var password = ctx.formParam("password");
+                var passwordConfirmation = ctx.formParam("passwordConfirmation");
+
+                var user = new User(createUsers().size() +1, name, email, password);
+                users.add(user);
+                ctx.redirect("/users");
+        });
 
         app.get("/hello", ctx -> {
             String name = ctx.queryParam("name");
@@ -143,6 +156,7 @@ public class HelloWorld {
         users.add(user5);
         return users;
     }
+
 
     private static List<Course> filterCoursesByTerm(String term) {
         List<Course> allCourses = createCourses();

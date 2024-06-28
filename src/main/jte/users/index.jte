@@ -17,7 +17,7 @@ content = @`
         @for (var user : page.getUsers())
             <tr>
                 <td>${user.getId()}</td>
-                <td>${user.getFirstName()} ${user.getLastName()}</td>
+                <td>${user.getName()} ${user.getPassword()}</td>
                 <td>${user.getEmail()}</td>
                 <td><a href="/users/${user.getId()}">Просмотр</a></td>
             </tr>

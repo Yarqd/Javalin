@@ -2,14 +2,14 @@ package org.example.hexlet.model;
 
 public final class User {
     private long id;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String email;
+    private String password;
 
-    public User(long id, String firstName, String lastName, String email) {
+    public User(long id, String name, String password, String email) {
         this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.name = name;
+        this.password = password;
         this.email = email;
     }
 
@@ -21,20 +21,20 @@ public final class User {
         this.id = id;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getPassword() {
+        return password;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getEmail() {
@@ -49,8 +49,8 @@ public final class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
+                ", firstName='" + name + '\'' +
+                ", lastName='" + password + '\'' +
                 ", email='" + email + '\'' +
                 '}';
     }
