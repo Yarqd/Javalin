@@ -1,3 +1,4 @@
+@import org.example.hexlet.NamedRoutes
 @import org.example.hexlet.dto.users.BuildUserPage;
 @param BuildUserPage page
 
@@ -20,8 +21,8 @@
         @endfor
     </ul>
 @endif
-
-<form action="/users" method="post">
+<%--Тут именованный маршрут   -   "/users"--%>
+<form action="${NamedRoutes.usersPath()}" method="post">
     <div>
         <label>
             Имя

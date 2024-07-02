@@ -25,16 +25,16 @@ public class HelloWorld {
             config.fileRenderer(new JavalinJte());
         });
 
-        app.get("/", ctx -> ctx.render("index.jte"));
+        app.get(NamedRoutes.basePath(), ctx -> ctx.render("index.jte"));
 
         // Добавление обработчиков для пользователей и использование макетов
         List<User> users = createUsers();
-        app.get("/users", ctx -> {
+        app.get(NamedRoutes.usersPath(), ctx -> {
             var page = new UsersPage(users);
             ctx.render("users/index.jte", model("page", page));
         });
 
-        app.get("/users/build", ctx -> {
+        app.get(NamedRoutes.buildUserPath(), ctx -> {
             var page = new BuildUserPage();
             ctx.render("users/build.jte", model("page", page));
         });
@@ -54,7 +54,7 @@ public class HelloWorld {
             ctx.result(e.getMessage());
         });
 
-        app.post("/users", ctx -> {
+        app.post(NamedRoutes.usersPath(), ctx -> {
                 var name = ctx.formParam("name");
                 var email = ctx.formParam("email");
 
@@ -65,7 +65,7 @@ public class HelloWorld {
                             .get();
                     var user = new User(createUsers().size() + 1, name, email, password);
                     users.add(user);
-                    ctx.redirect("/users");
+                    ctx.redirect(NamedRoutes.usersPath());
                 } catch (ValidationException e) {
                     var page = new BuildUserPage(name, email, e.getErrors());
                     ctx.render("users/build.jte", model("page", page));
@@ -92,7 +92,7 @@ public class HelloWorld {
         List<Course> courses = createCourses();
 
         // Обработчик для отображения списка курсов
-        app.get("/courses", ctx -> {
+        app.get(NamedRoutes.coursesPath(), ctx -> {
             var term = ctx.queryParam("term");
             List<Course> filteredCourses;
             if (term != null && !term.isEmpty()) {
@@ -166,7 +166,6 @@ public class HelloWorld {
         users.add(user5);
         return users;
     }
-
 
     private static List<Course> filterCoursesByTerm(String term) {
         List<Course> allCourses = createCourses();
