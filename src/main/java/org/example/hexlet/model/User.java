@@ -6,6 +6,7 @@ public final class User {
     private String email;
     private String password;
 
+    // Конструктор с id
     public User(long id, String name, String password, String email) {
         this.id = id;
         this.name = name;
@@ -13,6 +14,15 @@ public final class User {
         this.email = email;
     }
 
+    // Конструктор без id
+    public User(String name, String password, String email) {
+        this.id = 0; // Значение по умолчанию
+        this.name = name;
+        this.password = password;
+        this.email = email;
+    }
+
+    // Геттеры и сеттеры
     public long getId() {
         return id;
     }
@@ -49,9 +59,9 @@ public final class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", firstName='" + name + '\'' +
-                ", lastName='" + password + '\'' +
+                ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
                 '}';
     }
 }
