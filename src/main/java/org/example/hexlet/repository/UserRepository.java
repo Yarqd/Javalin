@@ -11,10 +11,20 @@ public class UserRepository {
     private static long nextId = 1;
 
     public static void save(User user) {
-        if (user.getId() == 0) { // Проверка, если id равно 0
-            user.setId(nextId++);
+        // Если пользователь уже существует, обновляем его данные
+        Optional<User> existingUser = find(user.getId());
+        if (existingUser.isPresent()) {
+            User existing = existingUser.get();
+            existing.setName(user.getName());
+            existing.setEmail(user.getEmail());
+            existing.setPassword(user.getPassword());
+        } else {
+            // Если пользователь новый, присваиваем ему новый ID и добавляем в список
+            if (user.getId() == 0) {
+                user.setId(nextId++);
+            }
+            entities.add(user);
         }
-        entities.add(user);
     }
 
     public static List<User> getEntities() {
