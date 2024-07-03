@@ -5,6 +5,7 @@ import io.javalin.rendering.template.JavalinJte;
 import org.apache.commons.text.StringEscapeUtils;
 import org.example.hexlet.controller.UsersController;
 import org.example.hexlet.controller.CoursesController;
+import org.example.hexlet.dto.MainPage;
 import org.example.hexlet.repository.UserRepository;
 
 import static io.javalin.rendering.template.TemplateUtil.model;
@@ -25,7 +26,31 @@ public class HelloWorld {
             ctx.result("Hello, " + name + "!");
         });
 
-        app.get(NamedRoutes.basePath(), ctx -> ctx.render("index.jte"));
+        //app.get(NamedRoutes.basePath(), ctx -> ctx.render("index.jte"));
+//        app.get(NamedRoutes.basePath(), ctx -> {
+//            String visitedCookieValue = ctx.cookie("visited");
+//            boolean visited = visitedCookieValue != null && Boolean.parseBoolean(visitedCookieValue);
+//
+//            System.out.println("Visited cookie: " + visitedCookieValue); // Для отладки
+//            // Чтение куки
+//            var page = new MainPage(visited);
+//
+//            // Отправка данных на рендеринг шаблона
+//            ctx.render("index.jte", model("page", page));
+//
+//            // Установка куки
+//            if (!visited) {
+//                ctx.cookie("visited", String.valueOf(true));
+//            }
+//        });
+        app.get("/", ctx -> {
+            String visitedCookie = ctx.cookie("visited");
+            System.out.println("Visited cookie: " + visitedCookie); // Лог для проверки значения куки
+            boolean visited = visitedCookie != null && Boolean.parseBoolean(visitedCookie);
+            var page = new MainPage(visited);
+            ctx.render("index.jte", model("page", page));
+            ctx.cookie("visited", "true");
+        });
 
         // Инициализируем пользователей
         UserRepository.createUsers();
