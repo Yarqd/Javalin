@@ -10,6 +10,7 @@ content = @`
     @endif
     <p>Welcome to the home page!</p>
     <a href="${NamedRoutes.usersPath()}">View Users</a>
+
     @if(page.getCurrentUser() != null)
         <p>Добро пожаловать, ${page.getCurrentUser()}.</p>
         <form action="${NamedRoutes.sessionsPath()}" method="post">

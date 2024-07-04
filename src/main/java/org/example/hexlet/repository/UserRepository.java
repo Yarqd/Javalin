@@ -47,10 +47,16 @@ public class UserRepository {
     }
 
     public static void createUsers() {
-        entities.add(new User(nextId++, "John", "Doe", "john.doe@example.com"));
-        entities.add(new User(nextId++, "Jane", "Smith", "jane.smith@example.com"));
-        entities.add(new User(nextId++, "Alice", "Johnson", "alice.johnson@example.com"));
-        entities.add(new User(nextId++, "Bob", "Brown", "bob.brown@example.com"));
-        entities.add(new User(nextId++, "Charlie", "Davis", "charlie.davis@example.com"));
+        entities.add(new User(nextId++, "John", "password1", "john.doe@example.com"));
+        entities.add(new User(nextId++, "Jane", "password2", "jane.smith@example.com"));
+        entities.add(new User(nextId++, "Alice", "password3", "alice.johnson@example.com"));
+        entities.add(new User(nextId++, "Bob", "password4", "bob.brown@example.com"));
+        entities.add(new User(nextId++, "Charlie", "password5", "charlie.davis@example.com"));
+    }
+
+    public static Optional<User> findByEmail(String email) {
+        return entities.stream()
+                .filter(user -> user.getEmail().equals(email))
+                .findFirst();
     }
 }

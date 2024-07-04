@@ -1,7 +1,11 @@
 @import org.example.hexlet.NamedRoutes
 
-<form action="${NamedRoutes.sessionsPath()}" method="post">
-    <input type="text" placeholder="Nickname" name="nickname" />
-    <input type="password" placeholder="Password" name="password" />
-    <input type="submit" />
-</form>
+@template.layout.page(
+content = @`
+    <form action="${NamedRoutes.sessionsPath()}" method="post">
+        <input type="email" placeholder="Email" name="email" required />
+        <input type="password" placeholder="Password" name="password" required />
+        <input type="submit" value="Login" />
+    </form>
+`
+)

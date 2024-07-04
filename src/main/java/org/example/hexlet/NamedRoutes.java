@@ -26,12 +26,19 @@ public class NamedRoutes {
         return "/courses/" + id;
     }
 
-    // Добавляем маршруты для сессий
-    public static String sessionsPath() {
-        return "/sessions";
+    public static String userPath(Long id) {
+        return userPath(String.valueOf(id));
+    }
+
+    public static String userPath(String id) {
+        return "/users/" + id;
     }
 
     public static String buildSessionPath() {
         return "/sessions/build";
+    }
+
+    public static String sessionsPath() {
+        return "/sessions";
     }
 }

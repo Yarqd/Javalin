@@ -57,8 +57,7 @@ public class UsersController {
         var id = ctx.pathParamAsClass("id", Long.class).get();
         var user = UserRepository.find(id)
                 .orElseThrow(() -> new NotFoundResponse("Entity with id = " + id + " not found"));
-        var page = new UserPage(user);
-        ctx.render("users/edit.jte", model("page", page));
+        ctx.render("users/edit.jte", model("user", user));
     }
 
     public static void update(Context ctx) {
