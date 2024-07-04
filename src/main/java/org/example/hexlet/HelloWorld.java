@@ -5,6 +5,7 @@ import io.javalin.rendering.template.JavalinJte;
 import org.apache.commons.text.StringEscapeUtils;
 import org.example.hexlet.controller.UsersController;
 import org.example.hexlet.controller.CoursesController;
+import org.example.hexlet.controller.SessionsController;
 import org.example.hexlet.dto.MainPage;
 import org.example.hexlet.repository.UserRepository;
 
@@ -26,28 +27,12 @@ public class HelloWorld {
             ctx.result("Hello, " + name + "!");
         });
 
-        //app.get(NamedRoutes.basePath(), ctx -> ctx.render("index.jte"));
-//        app.get(NamedRoutes.basePath(), ctx -> {
-//            String visitedCookieValue = ctx.cookie("visited");
-//            boolean visited = visitedCookieValue != null && Boolean.parseBoolean(visitedCookieValue);
-//
-//            System.out.println("Visited cookie: " + visitedCookieValue); // Для отладки
-//            // Чтение куки
-//            var page = new MainPage(visited);
-//
-//            // Отправка данных на рендеринг шаблона
-//            ctx.render("index.jte", model("page", page));
-//
-//            // Установка куки
-//            if (!visited) {
-//                ctx.cookie("visited", String.valueOf(true));
-//            }
-//        });
         app.get("/", ctx -> {
             String visitedCookie = ctx.cookie("visited");
             System.out.println("Visited cookie: " + visitedCookie); // Лог для проверки значения куки
             boolean visited = visitedCookie != null && Boolean.parseBoolean(visitedCookie);
-            var page = new MainPage(visited);
+            String currentUser = ctx.sessionAttribute("currentUser");
+            var page = new MainPage(visited, currentUser);
             ctx.render("index.jte", model("page", page));
             ctx.cookie("visited", "true");
         });
@@ -67,6 +52,11 @@ public class HelloWorld {
         // Роутинг для курсов
         app.get(NamedRoutes.coursesPath(), CoursesController::index);
         app.get("/courses/{id}", CoursesController::show);
+
+        // Роутинг для сессий
+        app.get(NamedRoutes.buildSessionPath(), SessionsController::build);
+        app.post(NamedRoutes.sessionsPath(), SessionsController::create);
+        app.delete(NamedRoutes.sessionsPath(), SessionsController::destroy);
 
         // Старые маршруты для безопасности
         app.get("/userss/{id}", ctx -> {

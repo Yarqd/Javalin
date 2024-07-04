@@ -10,5 +10,14 @@ content = @`
     @endif
     <p>Welcome to the home page!</p>
     <a href="${NamedRoutes.usersPath()}">View Users</a>
+    @if(page.getCurrentUser() != null)
+        <p>Добро пожаловать, ${page.getCurrentUser()}.</p>
+        <form action="${NamedRoutes.sessionsPath()}" method="post">
+            <input type="hidden" name="_method" value="delete">
+            <button type="submit">Logout</button>
+        </form>
+    @else
+        <a href="${NamedRoutes.buildSessionPath()}">Войти</a>
+    @endif
 `
 )
