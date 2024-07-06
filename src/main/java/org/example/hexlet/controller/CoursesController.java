@@ -2,7 +2,6 @@ package org.example.hexlet.controller;
 
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
-import org.example.hexlet.NamedRoutes;
 import org.example.hexlet.dto.courses.CoursePage;
 import org.example.hexlet.dto.courses.CoursesPage;
 import org.example.hexlet.model.Course;
@@ -51,11 +50,13 @@ public class CoursesController {
         var term = ctx.queryParam("term");
         List<Course> filteredCourses;
         if (term != null && !term.isEmpty()) {
-            filteredCourses = filterCoursesByTerm(term); // Фильтруем курсы по term
+            filteredCourses = filterCoursesByTerm(term);
         } else {
-            filteredCourses = courses; // Показываем все курсы
+            filteredCourses = courses;
         }
-        var page = new CoursesPage(filteredCourses, term);
+        var header = "Courses List";
+        var page = new CoursesPage(filteredCourses, header, term);
+        page.setFlash(ctx.consumeSessionAttribute("flash")); // Устанавливаем флеш-сообщение
         ctx.render("courses/index.jte", model("page", page));
     }
 
@@ -67,5 +68,39 @@ public class CoursesController {
                 .orElseThrow(() -> new NotFoundResponse("Course not found"));
         var page = new CoursePage(course, "Course Details");
         ctx.render("courses/show.jte", model("page", page));
+    }
+
+    public static void newForm(Context ctx) {
+        ctx.render("courses/new.jte");
+    }
+
+    public static void create(Context ctx) {
+        var name = ctx.formParam("name");
+        var description = ctx.formParam("description");
+
+        if (name == null || name.isEmpty() || description == null || description.isEmpty()) {
+            ctx.sessionAttribute("flash", "Name and description cannot be empty");
+            ctx.redirect("/courses/new");
+            return;
+        }
+
+        var course = new Course(name, description);
+        course.setId((long) (courses.size() + 1));
+        courses.add(course);
+
+        ctx.sessionAttribute("flash", "Course has been created!");
+        ctx.redirect("/courses");
+    }
+
+    public static void delete(Context ctx) {
+        var id = Long.parseLong(ctx.pathParam("id"));
+        var course = courses.stream()
+                .filter(c -> c.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundResponse("Course not found"));
+        courses.remove(course);
+
+        ctx.sessionAttribute("flash", "Course has been deleted!");
+        ctx.redirect("/courses");
     }
 }

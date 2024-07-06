@@ -40,6 +40,13 @@ public class HelloWorld {
         // Инициализируем пользователей
         UserRepository.createUsers();
 
+        // Роутинг для курсов
+        app.get("/courses/new", CoursesController::newForm); // Маршрут для формы создания курса
+        app.post(NamedRoutes.coursesPath(), CoursesController::create); // Маршрут для создания курсов
+        app.get(NamedRoutes.coursesPath(), CoursesController::index);
+        app.get("/courses/{id}", CoursesController::show);
+        app.post("/courses/{id}", CoursesController::delete); // Обработка метода POST для удаления курса
+
         // Роутинг для пользователей
         app.get(NamedRoutes.usersPath(), UsersController::index);
         app.get(NamedRoutes.buildUserPath(), UsersController::build);
@@ -48,10 +55,6 @@ public class HelloWorld {
         app.get("/users/{id}/edit", UsersController::edit);
         app.patch("/users/{id}", UsersController::update);
         app.delete("/users/{id}", UsersController::destroy);
-
-        // Роутинг для курсов
-        app.get(NamedRoutes.coursesPath(), CoursesController::index);
-        app.get("/courses/{id}", CoursesController::show);
 
         // Роутинг для сессий
         app.get(NamedRoutes.buildSessionPath(), SessionsController::build);
