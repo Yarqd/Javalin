@@ -16,8 +16,8 @@ ENV PATH=$PATH:$GRADLE_HOME/bin
 
 WORKDIR /app
 
-COPY /app .
+COPY . .
 
 RUN gradle installDist
 
-CMD ./build/install/java-javalin-blog/bin/java-javalin-blog
+CMD ["./build/install/Javalin/bin/Javalin"]
