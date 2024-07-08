@@ -2,61 +2,92 @@ package org.example.hexlet.repository;
 
 import org.example.hexlet.model.User;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UserRepository {
-    private static final List<User> entities = new ArrayList<>();
-    private static long nextId = 1;
+public class UserRepository extends BaseRepository {
 
-    public static void save(User user) {
-        // Если пользователь уже существует, обновляем его данные
-        Optional<User> existingUser = find(user.getId());
-        if (existingUser.isPresent()) {
-            User existing = existingUser.get();
-            existing.setName(user.getName());
-            existing.setEmail(user.getEmail());
-            existing.setPassword(user.getPassword());
-        } else {
-            // Если пользователь новый, присваиваем ему новый ID и добавляем в список
-            if (user.getId() == 0) {
-                user.setId(nextId++);
+    public static void save(User user) throws SQLException {
+        String sql = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+        try (var conn = dataSource.getConnection();
+             var preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setString(1, user.getName());
+            preparedStatement.setString(2, user.getEmail());
+            preparedStatement.setString(3, user.getPassword());
+            preparedStatement.executeUpdate();
+
+            var generatedKeys = preparedStatement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                user.setId(generatedKeys.getLong(1));
+            } else {
+                throw new SQLException("DB did not return an id after saving the entity");
             }
-            entities.add(user);
         }
     }
 
-    public static List<User> getEntities() {
-        return new ArrayList<>(entities);
+    public static Optional<User> find(Long id) throws SQLException {
+        var sql = "SELECT * FROM users WHERE id = ?";
+        try (var conn = dataSource.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            var resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                var name = resultSet.getString("name");
+                var email = resultSet.getString("email");
+                var password = resultSet.getString("password");
+                var user = new User(name, password, email);
+                user.setId(id);
+                return Optional.of(user);
+            }
+            return Optional.empty();
+        }
     }
 
-    public static Optional<User> find(Long id) {
-        return entities.stream()
-                .filter(user -> user.getId() == id)
-                .findFirst();
+    public static Optional<User> findByEmail(String email) throws SQLException {
+        var sql = "SELECT * FROM users WHERE email = ?";
+        try (var conn = dataSource.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            var resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                var id = resultSet.getLong("id");
+                var name = resultSet.getString("name");
+                var password = resultSet.getString("password");
+                var user = new User(name, password, email);
+                user.setId(id);
+                return Optional.of(user);
+            }
+            return Optional.empty();
+        }
     }
 
-    public static void delete(Long id) {
-        entities.removeIf(user -> user.getId() == id);
+    public static List<User> getEntities() throws SQLException {
+        var sql = "SELECT * FROM users";
+        try (var conn = dataSource.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            var resultSet = stmt.executeQuery();
+            var result = new ArrayList<User>();
+            while (resultSet.next()) {
+                var id = resultSet.getLong("id");
+                var name = resultSet.getString("name");
+                var email = resultSet.getString("email");
+                var password = resultSet.getString("password");
+                var user = new User(name, password, email);
+                user.setId(id);
+                result.add(user);
+            }
+            return result;
+        }
     }
 
-    public static void clear() {
-        entities.clear();
-        nextId = 1;
-    }
-
-    public static void createUsers() {
-        entities.add(new User(nextId++, "John", "password1", "john.doe@example.com"));
-        entities.add(new User(nextId++, "Jane", "password2", "jane.smith@example.com"));
-        entities.add(new User(nextId++, "Alice", "password3", "alice.johnson@example.com"));
-        entities.add(new User(nextId++, "Bob", "password4", "bob.brown@example.com"));
-        entities.add(new User(nextId++, "Charlie", "password5", "charlie.davis@example.com"));
-    }
-
-    public static Optional<User> findByEmail(String email) {
-        return entities.stream()
-                .filter(user -> user.getEmail().equals(email))
-                .findFirst();
+    public static void delete(Long id) throws SQLException {
+        var sql = "DELETE FROM users WHERE id = ?";
+        try (var conn = dataSource.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            stmt.executeUpdate();
+        }
     }
 }

@@ -7,18 +7,46 @@ import org.example.hexlet.controller.UsersController;
 import org.example.hexlet.controller.CoursesController;
 import org.example.hexlet.controller.SessionsController;
 import org.example.hexlet.dto.MainPage;
-import org.example.hexlet.repository.UserRepository;
+import org.example.hexlet.repository.BaseRepository;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
 
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class HelloWorld {
-    public static void main(String[] args) {
+    public static Javalin getApp() throws Exception {
+        var hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl("jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");
+        var dataSource = new HikariDataSource(hikariConfig);
+
+        var url = HelloWorld.class.getClassLoader().getResourceAsStream("schema.sql");
+        var sql = new BufferedReader(new InputStreamReader(url))
+                .lines().collect(Collectors.joining("\n"));
+
+        try (var connection = dataSource.getConnection();
+             var statement = connection.createStatement()) {
+            statement.execute(sql);
+        }
+
+        BaseRepository.dataSource = dataSource;
+
         var app = Javalin.create(config -> {
-            config.bundledPlugins.enableDevLogging(); // Включаем логирование
+            config.bundledPlugins.enableDevLogging();
             config.fileRenderer(new JavalinJte());
         });
 
-        // Маршрут /hello
+        return app;
+    }
+
+    public static void main(String[] args) throws Exception {
+        var app = getApp();
+
+        // Маршрут /hello /http://localhost:7070/hello?name=Alice
         app.get("/hello", ctx -> {
             String name = ctx.queryParam("name");
             if (name == null || name.isEmpty()) {
@@ -37,9 +65,6 @@ public class HelloWorld {
             ctx.cookie("visited", "true");
         });
 
-        // Инициализируем пользователей
-        UserRepository.createUsers();
-
         // Роутинг для курсов
         app.get("/courses/new", CoursesController::newForm); // Маршрут для формы создания курса
         app.post(NamedRoutes.coursesPath(), CoursesController::create); // Маршрут для создания курсов
@@ -53,13 +78,13 @@ public class HelloWorld {
         app.get("/users/{id}", UsersController::show);
         app.post(NamedRoutes.usersPath(), UsersController::create);
         app.get("/users/{id}/edit", UsersController::edit);
-        app.patch("/users/{id}", UsersController::update);
-        app.delete("/users/{id}", UsersController::destroy);
+        app.post("/users/{id}/update", UsersController::update); // Используем POST для обновления
+        app.post("/users/{id}/delete", UsersController::destroy); // Используем POST для удаления
 
         // Роутинг для сессий
         app.get(NamedRoutes.buildSessionPath(), SessionsController::build);
         app.post(NamedRoutes.sessionsPath(), SessionsController::create);
-        app.delete(NamedRoutes.sessionsPath(), SessionsController::destroy);
+        app.post(NamedRoutes.sessionsPath() + "/delete", SessionsController::destroy); // Используем POST для удаления сессии
 
         // Старые маршруты для безопасности
         app.get("/userss/{id}", ctx -> {

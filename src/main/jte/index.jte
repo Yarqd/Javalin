@@ -13,8 +13,7 @@ content = @`
 
     @if(page.getCurrentUser() != null)
         <p>Добро пожаловать, ${page.getCurrentUser()}.</p>
-        <form action="${NamedRoutes.sessionsPath()}" method="post">
-            <input type="hidden" name="_method" value="delete">
+        <form action="${NamedRoutes.sessionsPath()}/delete" method="post">
             <button type="submit">Logout</button>
         </form>
     @else
